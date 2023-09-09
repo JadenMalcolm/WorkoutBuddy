@@ -1,6 +1,8 @@
 import cv2
 import os
 
+# This class is for when videos are going to be used with the AI
+
 
 class ImageExtraction:
     def __init__(self, video_path, output_folder):

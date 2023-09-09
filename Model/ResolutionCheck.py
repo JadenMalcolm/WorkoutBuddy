@@ -1,17 +1,20 @@
 from PIL import Image
 import os
 
-# Directory containing your image files
-image_folder = "D:\\Users\\Jaden\\Documents\\WorkoutData"
+image_folder = os.path.join('Images')
 
 image_resolutions = []
 
-for filename in os.listdir(image_folder):
-    if filename.endswith(".jpg") or filename.endswith(".png"):  # Adjust the extensions if needed
-        image_path = os.path.join(image_folder, filename)
-        image = Image.open(image_path)
-        width, height = image.size
-        image_resolutions.append((width, height))
+# List the files in the directory and sort them
+image_files = sorted([f for f in os.listdir(image_folder) if f.endswith((".jpg", ".png"))])
+print(sorted(image_files))
+
+for filename in image_files:
+    image_path = os.path.join(image_folder, filename)
+    image = Image.open(image_path)
+    width, height = image.size
+    print(filename)
+    image_resolutions.append((width, height))
 
 # Print the image resolutions
 for i, resolution in enumerate(image_resolutions, start=1):

@@ -1,8 +1,7 @@
 import csv
 import json
 
-# Example CSV file path
-csv_file_path = 'D:\\Users\\Jaden\\Documents\\WorkoutData\\OrderedData.csv'
+csv_file_path = 'OrderedData.csv'
 
 keypoints_data = []
 
@@ -44,8 +43,6 @@ with open(csv_file_path, 'r') as csv_file:
                 "cy": cy,
                 "label": keypoint_labels[line_index + 1],
         })
-
-
 
     for data in keypoints_data:
         print(json.dumps(data))

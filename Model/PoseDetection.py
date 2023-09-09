@@ -19,13 +19,11 @@ class PoseDetection:
         x = BatchNormalization()(x)
         x = Activation('relu')(x)
         x = MaxPooling2D(pool_size=(2, 2))(x)
-
         # Convolutional Block 2
         x = Conv2D(filters=128, kernel_size=(3, 3), padding='same')(x)
         x = BatchNormalization()(x)
         x = Activation('relu')(x)
         x = MaxPooling2D(pool_size=(2, 2))(x)
-
         # Convolutional Block 3
         x = Conv2D(filters=256, kernel_size=(3, 3), padding='same')(x)
         x = BatchNormalization()(x)
@@ -38,32 +36,35 @@ class PoseDetection:
         x = Dropout(0.5)(x)  # Regularization
         x = Dense(256, activation='relu')(x)
         x = Dense(19, activation='linear')(x)
+        # unimplemented, will work on the current functions till ready
+        pose_type = Dense(10, activation='sigmoid', name='pose_classification')
 
         keypoints = Dense(19, activation='linear', name='keypoints_output')(x)
-        pose_classification = Dense(1, activation='sigmoid', name='pose_classification_output')(x)
 
-        model = tf.keras.Model(inputs=input_layer, outputs=[keypoints, pose_classification])
+        pose_correctness = Dense(1, activation='sigmoid', name='pose_correctness_output')(x)
+
+        model = tf.keras.Model(inputs=input_layer, outputs=[keypoints, pose_correctness])
         model.compile(
-            loss={'keypoints_output': 'mean_absolute_error', 'pose_classification_output': 'binary_crossentropy'},
+            loss={'keypoints_output': 'mean_absolute_error', 'pose_correctness_output': 'binary_crossentropy'},
             optimizer='adam',
-            metrics={'keypoints_output': 'mae', 'pose_classification_output': 'accuracy'}
+            metrics={'keypoints_output': 'mae', 'pose_correctness_output': 'accuracy'}
         )
 
-        #model.summary()
+        # model.summary()
         return model
 
-    def train_model(self, train_images, train_keypoints, train_pose_correctness_labels, batch_size=2,
+    def train_model(self, train_images, train_keypoints, train_pose_correctness_labels, batch_size=5,
                     validation_split=0.1, num_epochs=100):
         self.model.fit(train_images,
                        {'keypoints_output': train_keypoints,
-                        'pose_classification_output': train_pose_correctness_labels},
+                        'pose_correctness_output': train_pose_correctness_labels},
                        epochs=num_epochs, batch_size=batch_size, validation_split=validation_split)
         self.save_model()
 
     def evaluate_model(self, test_images, test_keypoints, test_pose_correctness_labels):
         return self.model.evaluate(test_images,
                                    {'keypoints_output': test_keypoints,
-                                    'pose_classification_output': test_pose_correctness_labels})
+                                    'pose_correctness_output': test_pose_correctness_labels})
 
     def save_model(self):
         if not os.path.exists('saved_models'):

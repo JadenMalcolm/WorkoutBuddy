@@ -12,8 +12,10 @@ class FramePreprocessor:
         if not os.path.exists(self.output_folder):
             os.makedirs(self.output_folder)
 
+    # resizes images and turns into bitmap
     def preprocess_images(self):
         preprocessed_images = []
+        print(os.listdir(self.input_folder))
         for image_filename in os.listdir(self.input_folder):
 
             if image_filename.endswith(".jpg"):
