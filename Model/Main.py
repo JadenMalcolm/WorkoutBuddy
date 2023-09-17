@@ -1,32 +1,13 @@
-import cv2
 import os
+import cv2
 import numpy as np
 from FramePreprocessor import FramePreprocessor
 from PoseDetection import PoseDetection
-from TestDataPoints import test_scaled_point_data, test_correctness_data
+from DataPoints import scaled_point_data, correctness_points
 
-NUM_SAMPLES = 2
-NUM_KEYPOINTS = 19
+NUM_SAMPLES = 32
+NUM_KEYPOINTS = 13
 TARGET_SIZE = (224, 224)
-
-
-def visualize_keypoints_on_image(keypoints, scaling_factor=3.0):
-    original_image = cv2.imread('test.jpg')
-
-    # Resize the original image to the target size expected by the model
-    resized_image = cv2.resize(original_image, (TARGET_SIZE[1], TARGET_SIZE[0]))
-
-    # Scale the keypoints
-    scaled_keypoints = keypoints * scaling_factor
-
-    for i in range(scaled_keypoints.shape[1]):  # Iterate over keypoints
-        x = int(scaled_keypoints[0, i])
-        y = int(scaled_keypoints[1, i])
-        cv2.circle(resized_image, (x, y), 5, (0, 255), -1)
-
-    cv2.imshow("Image with Scaled Keypoints", resized_image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
 
 
 class Main:
@@ -35,9 +16,8 @@ class Main:
         self.numpy_folder = numpy_folder
 
     def format_keypoints_data(self, data):
-        num_images = 2
-        print(num_images)
-        # num_images and NUM_SAMPLES are typically the same, but are required for the model to compile
+        num_images = 448
+        #print(num_images)
         keypoints_matrix = np.zeros((num_images, NUM_SAMPLES, NUM_KEYPOINTS), dtype=np.float32)
         current_image_index = 0
         current_keypoint_index = 0
@@ -53,12 +33,13 @@ class Main:
                 current_keypoint_index = 0
 
         np.save(os.path.join(self.numpy_folder, "keypoints_data.npy"), keypoints_matrix)
-        np.save(os.path.join(self.numpy_folder, "correctness_data.npy"), test_correctness_data)
+        np.save(os.path.join(self.numpy_folder, "correctness_data.npy"), correctness_points)
 
     def preprocess_frames_and_save(self):
         preprocessor = FramePreprocessor(self.data_folder, self.numpy_folder, target_size=TARGET_SIZE)
         preprocessed_images = preprocessor.preprocess_images()
         np.save(os.path.join(self.numpy_folder, "preprocessed_images.npy"), preprocessed_images)
+        return preprocessed_images
 
     def train_and_evaluate_model(self):
         saved_images_path = os.path.join(self.numpy_folder, "preprocessed_images.npy")
@@ -73,22 +54,42 @@ class Main:
         print(correct_data.shape)
         pose_detector = PoseDetection(data_folder='numpyData', target_size=TARGET_SIZE, num_keypoints=NUM_KEYPOINTS)
         pose_detector.load_model()
-        pose_detector.train_model(preprocessed_images, keypoints_data, correct_data, batch_size=1, num_epochs=10)
-        print("evaluating model")
-        pose_detector.evaluate_model(preprocessed_images, keypoints_data, correct_data)
+        pose_detector.train_model(preprocessed_images, keypoints_data, batch_size=1, num_epochs=1)
+        pose_detector = pose_detector.evaluate_model(preprocessed_images, keypoints_data, batch_size=1)
+
         return pose_detector
 
+    def visualize_keypoints_on_image(self, image_path, keypoints_predictions):
+        # Load and preprocess the image
+        print(keypoints_predictions)
+        original_image = cv2.imread(image_path)
+        TARGET_SIZE = (
+        original_image.shape[1], original_image.shape[0])  # Assuming TARGET_SIZE is based on the image dimensions
+        resized_image = cv2.resize(original_image, (TARGET_SIZE[0], TARGET_SIZE[1]))
+
+        # Scale and draw the keypoints
+        for kp in keypoints_predictions:
+            x = int(kp[0])
+            y = int(kp[1])
+            cv2.circle(resized_image, (x, y), 5, (0, 255, 0), -1)  # Use (0, 255, 0) for green color
+
+        cv2.imshow("Image with Scaled Keypoints", resized_image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 def main():
-    workout_data = os.path.join('Images')
+    workout_data = os.path.join('output_frames\m2-res_720p')
     numpy_folder = os.path.join('numpy_data')
+    folder = os.path.join('Visual')
     model = Main(workout_data, numpy_folder)
-    print(len(test_scaled_point_data))
-    model.format_keypoints_data(test_scaled_point_data)
-    model.preprocess_frames_and_save()
-    keypoints_data = np.load(os.path.join(numpy_folder, "keypoints_data.npy"))
-    model.train_and_evaluate_model()
-    visualize_keypoints_on_image(keypoints_data[0])
+    model.format_keypoints_data(scaled_point_data)
+    images = model.preprocess_frames_and_save()
+    batch_size = 1
+    image_path = 'frame15.jpg'
+    pose_detector = PoseDetection(data_folder='numpyData', target_size=TARGET_SIZE, num_keypoints=NUM_KEYPOINTS)
+    #keypoints = model.train_and_evaluate_model()
+    pose_detector = pose_detector.picture_model(images, batch_size=1)
+    model.visualize_keypoints_on_image(image_path, pose_detector)
 
 
 if __name__ == "__main__":
