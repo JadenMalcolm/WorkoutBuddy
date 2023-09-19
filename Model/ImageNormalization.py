@@ -23,6 +23,37 @@ def checkResolution(input_folder):
     # Return the list of image resolutions
     return image_resolutions
 
+def NormalizeData(original_data, resolutions):
+    scaled_data = []  # To store the scaled data
+    current_resolution_idx = 0  # Index to keep track of the current resolution
+    data_count = 0  # Count of data points processed for the current resolution
+
+    # Number of data points for each resolution
+    data_points_per_resolution = 12
+
+    # Iterate through the data
+    for data in original_data:
+        # Get the resolution based on the current index
+        current_resolution = resolutions[current_resolution_idx]
+
+        if "cx" in data and "cy" in data:
+            original_width, original_height = current_resolution
+            scale_x = 224 / original_width
+            scale_y = 224 / original_height
+            data["cx"] = int(data["cx"] * scale_x)
+            data["cy"] = int(data["cy"] * scale_y)
+
+        scaled_data.append(data)
+        data_count += 1
+
+        if data_count >= data_points_per_resolution:
+            '#If count exceeds the expected number of data points for this resolution, increment the resolution index'
+            current_resolution_idx += 1
+            data_count = 0  # Reset the data count for the new resolution
+
+    # Return the scaled data
+    return scaled_data
+
 
 def extract_frames_from_folder(video_folder, frame_output):
     # void method, uses extract frames and to easily gather each video from a folder of folders
@@ -105,7 +136,11 @@ image_folder = 'Images'
 processed_image_folder = 'Processed_Images'
 video = 'VideoData'
 numpy_data = 'numpy_data'
-#print(checkResolution(data_folder))
+originalresolution = checkResolution(image_folder)
+scaled_data = NormalizeData(Sample_data, originalresolution)
+print(scaled_data)
+
+
 #extract_frames_from_folder(video, image_folder)
 preprocessed_images = preprocess_images(image_folder, processed_image_folder)
 keypoints_matrix = format_keypoints_data(Sample_data)
