@@ -4,8 +4,6 @@ import numpy as np
 import cv2
 from DataPoints import scaled_point_data, Sample_data
 
-
-NUM_SAMPLES = 12
 NUM_KEYPOINTS = 12
 def checkResolution(input_folder):
     # Returns a list of tuples representing resolutions from each image processed
@@ -24,7 +22,7 @@ def checkResolution(input_folder):
     return image_resolutions
 
 def NormalizeData(original_data, resolutions):
-    scaled_data = []  # To store the scaled data
+    normal_data = []  # To store the scaled data
     current_resolution_idx = 0  # Index to keep track of the current resolution
     data_count = 0  # Count of data points processed for the current resolution
 
@@ -43,7 +41,7 @@ def NormalizeData(original_data, resolutions):
             data["cx"] = int(data["cx"] * scale_x)
             data["cy"] = int(data["cy"] * scale_y)
 
-        scaled_data.append(data)
+        normal_data.append(data)
         data_count += 1
 
         if data_count >= data_points_per_resolution:
@@ -52,7 +50,7 @@ def NormalizeData(original_data, resolutions):
             data_count = 0  # Reset the data count for the new resolution
 
     # Return the scaled data
-    return scaled_data
+    return normal_data
 
 
 def extract_frames_from_folder(video_folder, frame_output):
@@ -85,12 +83,13 @@ def extract_frames(video_path, frame_output, video_index):
             current_frame += 1
         else:
             break
-    #Stops gathering frames
+    # Stops gathering frames
     cam.release()
 
 
 def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
     print(os.listdir(input_folder))
+    image = None
     for image_filename in os.listdir(input_folder):
 
         if image_filename.endswith(".jpg"):
@@ -107,11 +106,11 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
             print("Creating,", image_filename, image_path)
 
     print("Preprocessing completed.")
-    return np.array(preprocess_images)
+    return np.array(image)
 
 def format_keypoints_data(data):
     num_images = int(NUM_KEYPOINTS / len(data))
-    #matrix data, images, keypoints, xy coordinates
+    # matrix data, images, keypoints, xy coordinates
     matrix = np.zeros((num_images, NUM_KEYPOINTS, 2), dtype=np.float32)
 
     current_image_index = 0
@@ -136,12 +135,12 @@ image_folder = 'Images'
 processed_image_folder = 'Processed_Images'
 video = 'VideoData'
 numpy_data = 'numpy_data'
-originalresolution = checkResolution(image_folder)
-scaled_data = NormalizeData(Sample_data, originalresolution)
+originalResolution = checkResolution(image_folder)
+scaled_data = NormalizeData(Sample_data, originalResolution)
 print(scaled_data)
 
 
-#extract_frames_from_folder(video, image_folder)
+# extract_frames_from_folder(video, image_folder)
 preprocessed_images = preprocess_images(image_folder, processed_image_folder)
 keypoints_matrix = format_keypoints_data(Sample_data)
 np.save(os.path.join(numpy_data, "preprocessed_images.npy"), preprocessed_images)
