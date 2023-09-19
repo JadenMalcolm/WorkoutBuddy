@@ -20,8 +20,7 @@ class Main:
         # shape of np.arrays
         print(preprocessed_images.shape)
         print(keypoints_data.shape)
-        pose_detector = PoseDetection(data_folder='numpyData', target_size=TARGET_SIZE, num_keypoints=NUM_KEYPOINTS)
-        pose_detector.load_model()
+        pose_detector = PoseDetection(data_folder='numpy_data', target_size=TARGET_SIZE, num_keypoints=NUM_KEYPOINTS)
         pose_detector.train_model(preprocessed_images, keypoints_data, batch_size=1, num_epochs=1)
         pose_detector = pose_detector.evaluate_model(preprocessed_images, keypoints_data, batch_size=1)
 

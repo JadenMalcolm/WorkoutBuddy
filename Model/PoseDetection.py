@@ -5,7 +5,7 @@ import os
 
 
 class PoseDetection:
-    def __init__(self, data_folder, target_size=(224, 224), num_keypoints=13):
+    def __init__(self, data_folder, target_size=(224, 224), num_keypoints=12):
         self.data_folder = data_folder
         self.target_size = target_size
         self.num_keypoints = num_keypoints
@@ -35,11 +35,11 @@ class PoseDetection:
         x = Dense(512, activation='relu')(x)
         x = Dropout(0.5)(x)  # Regularization
         x = Dense(256, activation='relu')(x)
-        x = Dense(13, activation='linear')(x)
+        x = Dense(12, activation='linear')(x)
         # unimplemented, will work on the current functions till ready
        # pose_type = Dense(10, activation='sigmoid', name='pose_classification')
 
-        keypoints = Dense(13, activation='linear', name='keypoints_output')(x)
+        keypoints = Dense(12, activation='linear', name='keypoints_output')(x)
 
       #  pose_correctness = Dense(1, activation='sigmoid', name='pose_correctness_output')(x)
 
@@ -53,7 +53,7 @@ class PoseDetection:
         # model.summary()
         return model
 
-    def train_model(self, train_images, train_keypoints, batch_size=32,
+    def train_model(self, train_images, train_keypoints, batch_size=1,
                     validation_split=0.1, num_epochs=1):
         self.model.fit(train_images,
                        {'keypoints_output': train_keypoints},

@@ -88,25 +88,26 @@ def extract_frames(video_path, frame_output, video_index):
 
 
 def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
-    print(os.listdir(input_folder))
-    image = None
-    for image_filename in os.listdir(input_folder):
+    processed_images = []  # List to store processed images
 
+    print(os.listdir(input_folder))
+    for image_filename in os.listdir(input_folder):
         if image_filename.endswith(".jpg"):
             image_path = os.path.join(input_folder, image_filename)
 
             image = cv2.imread(image_path)
             image = cv2.resize(image, target_size)
             image = image / 255.0  # This line normalizes the pixels
-            '#This could be replaced with grayscale to improve performance, color data may'
-            '#not be necessary'
+
             output_path = os.path.join(output_folder, image_filename)
             cv2.imwrite(output_path, image)
 
             print("Creating,", image_filename, image_path)
 
+            processed_images.append(image)  # Append the processed image to the list
+
     print("Preprocessing completed.")
-    return np.array(image)
+    return np.array(processed_images)
 
 def format_keypoints_data(data):
     num_images = int(NUM_KEYPOINTS / len(data))
