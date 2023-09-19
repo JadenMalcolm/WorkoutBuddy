@@ -1,7 +1,12 @@
 import os
 from PIL import Image
+import numpy as np
 import cv2
+from DataPoints import scaled_point_data
 
+
+NUM_SAMPLES = 2
+NUM_KEYPOINTS = 16
 def checkResolution(input_folder):
     # Returns a list of tuples representing resolutions from each image processed
     image_resolutions = []
@@ -20,7 +25,7 @@ def checkResolution(input_folder):
 
 
 def extract_frames_from_folder(video_folder, frame_output):
-    # void method, uses extract frames and to easily gather each video from a storage of folders
+    # void method, uses extract frames and to easily gather each video from a folder of folders
     try:
         if not os.path.exists(frame_output):
             os.makedirs(frame_output)
@@ -68,12 +73,35 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
             print("Creating,", image_filename, image_path)
 
     print("Preprocessing completed.")
+    return np.array(preprocess_images)
 
+def format_keypoints_data(input_folder, data):
+    num_images=len(data)/NUM_KEYPOINTS
+    print(num_images)
+    #print(num_images)
+    keypoints_matrix = np.zeros((num_images, NUM_SAMPLES, NUM_KEYPOINTS), dtype=np.float32)
+    current_image_index = 0
+    current_keypoint_index = 0
 
-image_folder = 'output_frames'
+    for entry in data:
+        if 'cx' in entry and 'cy' in entry:
+            keypoints_matrix[current_image_index, 0, current_keypoint_index] = entry['cx']
+            keypoints_matrix[current_image_index, 1, current_keypoint_index] = entry['cy']
+            current_keypoint_index += 1
+
+            if current_keypoint_index >= NUM_KEYPOINTS:
+                current_image_index += 1
+                current_keypoint_index = 0
+
+        np.save(os.path.join(input_folder, "keypoints_data.npy"), keypoints_matrix)
+
+image_folder = 'Images'
+processed_image_folder = 'Processed_Images'
 video = 'VideoData'
-processed_image_data = 'numpy_data'
+numpy_data = 'numpy_data'
 #print(checkResolution(data_folder))
 #extract_frames_from_folder(video, image_folder)
-preprocess_images(image_folder, processed_image_data)
+preprocessed_images = preprocess_images(image_folder, processed_image_folder)
+format_keypoints_data(numpy_data, scaled_point_data)
+np.save(os.path.join(numpy_data, "preprocessed_images.npy"), preprocessed_images)
 
