@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from FramePreprocessor import FramePreprocessor
 from PoseDetection import PoseDetection
 from DataPoints import scaled_point_data, correctness_points
 
@@ -34,12 +33,6 @@ class Main:
         np.save(os.path.join(self.numpy_folder, "keypoints_data.npy"), keypoints_matrix)
         np.save(os.path.join(self.numpy_folder, "correctness_data.npy"), correctness_points)
 
-    def preprocess_frames_and_save(self):
-        preprocessor = FramePreprocessor(self.data_folder, self.numpy_folder, target_size=TARGET_SIZE)
-        preprocessed_images = preprocessor.preprocess_images()
-        np.save(os.path.join(self.numpy_folder, "preprocessed_images.npy"), preprocessed_images)
-        return preprocessed_images
-
     def train_and_evaluate_model(self): #keypoints =
         saved_images_path = os.path.join(self.numpy_folder, "preprocessed_images.npy")
         keypoints_path = os.path.join(self.numpy_folder, "keypoints_data.npy")
@@ -63,10 +56,7 @@ def main():
     numpy_folder = os.path.join('numpy_data')
     model = Main(workout_data, numpy_folder)
     model.format_keypoints_data(scaled_point_data)
-    images = model.preprocess_frames_and_save()
-    pose_detector = PoseDetection(data_folder='numpyData', target_size=TARGET_SIZE, num_keypoints=NUM_KEYPOINTS)
-    #keypoints = model.train_and_evaluate_model()
-    pose_detector = pose_detector.picture_model(images, batch_size=1)
+    PoseDetection(data_folder='numpyData', target_size=TARGET_SIZE, num_keypoints=NUM_KEYPOINTS)
 
 
 if __name__ == "__main__":

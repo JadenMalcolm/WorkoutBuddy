@@ -11974,3 +11974,16 @@ correctness_points = [
 1,
 1
 ]
+
+Sample_data = [{'cx': 213, 'cy':221, 'label': 'left_shoulder'},
+{'cx': 274, 'cy':227, 'label': 'right_shoulder'},
+{'cx': 183, 'cy':282, 'label': 'left_elbow'},
+{'cx': 259, 'cy':296, 'label': 'right_elbow'},
+{'cx': 210, 'cy':237, 'label': 'left_wrist'},
+{'cx': 269, 'cy':225, 'label': 'right_wrist'},
+{'cx': 204, 'cy':357, 'label': 'left_hip'},
+{'cx': 239, 'cy':364, 'label': 'right_hip'},
+{'cx': 239, 'cy':436, 'label': 'left_knee'},
+{'cx': 283, 'cy':449, 'label': 'right_knee'},
+{'cx': 226, 'cy':521, 'label': 'left_ankle'},
+{'cx': 255, 'cy':546, 'label': 'right_ankle'}]
