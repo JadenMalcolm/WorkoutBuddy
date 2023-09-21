@@ -165,3 +165,9 @@ websocket-client==1.6.3
 Werkzeug==2.3.7
 widgetsnbextension==4.0.9
 wrapt==1.15.0
+pip==22.3.1
+wheel==0.38.4
+setuptools==65.5.1
+pyspark==3.4.1
+pytz==2023.3.post1
+pandas==2.1.1

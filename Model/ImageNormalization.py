@@ -3,6 +3,8 @@ from PIL import Image
 import numpy as np
 import cv2
 from DataPoints import scaled_point_data, Sample_data
+from pyspark.sql import SparkSession
+import pandas
 
 NUM_KEYPOINTS = 12
 def checkResolution(input_folder):
@@ -69,6 +71,7 @@ def extract_frames_from_folder(video_folder, frame_output):
         extract_frames(video_path, frame_output, video_index)
         video_index += 1
 
+
 def extract_frames(video_path, frame_output, video_index):
     cam = cv2.VideoCapture(video_path)
     current_frame = 1
@@ -109,21 +112,21 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
     print("Preprocessing completed.")
     return np.array(processed_images)
 
-def format_keypoints_data(data):
-    num_images = int(NUM_KEYPOINTS / len(data))
-    # matrix data, images, keypoints, xy coordinates
-    matrix = np.zeros((num_images, NUM_KEYPOINTS, 2), dtype=np.float32)
+
+def format_keypoints_data(data, keypoints):
+    num_images = len(data) // keypoints
+    matrix = np.zeros((num_images, keypoints, 2), dtype=np.float32)
 
     current_image_index = 0
     current_keypoint_index = 0
 
-    for entry in Sample_data:
+    for entry in data:
         if 'cx' in entry and 'cy' in entry:
             matrix[current_image_index, current_keypoint_index, 0] = entry['cx']
             matrix[current_image_index, current_keypoint_index, 1] = entry['cy']
             current_keypoint_index += 1
 
-            if current_keypoint_index >= NUM_KEYPOINTS:
+            if current_keypoint_index >= keypoints:
                 current_image_index += 1
                 current_keypoint_index = 0
 
@@ -143,7 +146,9 @@ print(scaled_data)
 
 # extract_frames_from_folder(video, image_folder)
 preprocessed_images = preprocess_images(image_folder, processed_image_folder)
-keypoints_matrix = format_keypoints_data(Sample_data)
+keypoints_matrix = format_keypoints_data(Sample_data, NUM_KEYPOINTS)
 np.save(os.path.join(numpy_data, "preprocessed_images.npy"), preprocessed_images)
 np.save(os.path.join(numpy_data, "keypoints_matrix.npy"), keypoints_matrix)
-
+spark = SparkSession.builder.appName("DataFrameToFile").getOrCreate()
+df1 = spark.createDataFrame(Sample_data)
+df1.show()

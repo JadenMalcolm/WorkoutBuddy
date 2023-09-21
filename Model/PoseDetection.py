@@ -53,7 +53,7 @@ class PoseDetection:
         # model.summary()
         return model
 
-    def train_model(self, train_images, train_keypoints, batch_size=1,
+    def train_model(self, train_images, train_keypoints, batch_size=5,
                     validation_split=0.1, num_epochs=1):
         self.model.fit(train_images,
                        {'keypoints_output': train_keypoints},
