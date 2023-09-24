@@ -6,6 +6,7 @@ from DataPoints import scaled_point_data, Sample_data
 from pyspark.sql import SparkSession
 import pandas
 
+
 NUM_KEYPOINTS = 12
 def checkResolution(input_folder):
     # Returns a list of tuples representing resolutions from each image processed
@@ -22,6 +23,7 @@ def checkResolution(input_folder):
 
     # Return the list of image resolutions
     return image_resolutions
+
 
 def NormalizeData(original_data, resolutions):
     normal_data = []  # To store the scaled data
@@ -115,7 +117,8 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
 
 def format_keypoints_data(data, keypoints):
     num_images = len(data) // keypoints
-    matrix = np.zeros((num_images, keypoints, 2), dtype=np.float32)
+    print(num_images)
+    matrix = np.zeros((num_images, 12, 2), dtype=np.float32)
 
     current_image_index = 0
     current_keypoint_index = 0
@@ -130,9 +133,20 @@ def format_keypoints_data(data, keypoints):
                 current_image_index += 1
                 current_keypoint_index = 0
 
-    print(matrix.shape)
-    print(matrix)
-    return matrix
+    print("Matrix Shape:", matrix.shape)
+
+    print("Matrix Contents:")
+
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            x = matrix[i, j, 0]
+            y = matrix[i, j, 1]
+            print(f"Image {i + 1}, Keypoint {j + 1}: (X={x}, Y={y})")
+    reshaped_data = matrix.reshape((matrix.shape[0], -1))
+
+    print("reshaped matrix shape ", reshaped_data.shape)
+
+    return reshaped_data
 
 
 image_folder = 'Images'
@@ -141,14 +155,20 @@ video = 'VideoData'
 numpy_data = 'numpy_data'
 originalResolution = checkResolution(image_folder)
 scaled_data = NormalizeData(Sample_data, originalResolution)
-print(scaled_data)
 
+print(scaled_data)
 
 # extract_frames_from_folder(video, image_folder)
 preprocessed_images = preprocess_images(image_folder, processed_image_folder)
 keypoints_matrix = format_keypoints_data(Sample_data, NUM_KEYPOINTS)
+print(keypoints_matrix)
+target_labels = np.zeros((2, 12, 2), dtype=np.float32)
+print(target_labels.shape)
+
+
+
 np.save(os.path.join(numpy_data, "preprocessed_images.npy"), preprocessed_images)
 np.save(os.path.join(numpy_data, "keypoints_matrix.npy"), keypoints_matrix)
-spark = SparkSession.builder.appName("DataFrameToFile").getOrCreate()
-df1 = spark.createDataFrame(Sample_data)
-df1.show()
+#spark = SparkSession.builder.appName("DataFrameToFile").getOrCreate()
+#df1 = spark.createDataFrame(Sample_data)
+#df1.show()

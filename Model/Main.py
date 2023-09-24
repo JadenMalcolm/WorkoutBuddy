@@ -2,7 +2,7 @@ import os
 import numpy as np
 from PoseDetection import PoseDetection
 
-NUM_KEYPOINTS = 12
+NUM_KEYPOINTS = 24
 TARGET_SIZE = (224, 224)
 
 
@@ -22,7 +22,7 @@ class Main:
         print(keypoints_data.shape)
         pose_detector = PoseDetection(data_folder='numpy_data', target_size=TARGET_SIZE, num_keypoints=NUM_KEYPOINTS)
         pose_detector.train_model(preprocessed_images, keypoints_data, batch_size=1, num_epochs=1)
-        pose_detector = pose_detector.evaluate_model(preprocessed_images, keypoints_data, batch_size=1)
+        print(pose_detector.evaluate_model(preprocessed_images, keypoints_data))
 
         return pose_detector
 

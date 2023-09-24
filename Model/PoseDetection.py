@@ -1,76 +1,99 @@
 import tensorflow as tf
-from keras.layers import Dense, Conv2D, BatchNormalization, Dropout, MaxPooling2D
-from tensorflow.python.keras.layers import GlobalAveragePooling2D, Activation
+from keras.layers import (Input, Conv2D, BatchNormalization, Activation,
+                          MaxPooling2D, Flatten, Dense, Concatenate, Dropout)
+
+import numpy as np
 import os
 
 
 class PoseDetection:
-    def __init__(self, data_folder, target_size=(224, 224), num_keypoints=12):
+    def __init__(self, data_folder, target_size=(224, 224), num_keypoints=24):
         self.data_folder = data_folder
         self.target_size = target_size
         self.num_keypoints = num_keypoints
         self.model = self._build_model()
 
     def _build_model(self):
-        input_layer = tf.keras.layers.Input(shape=(self.target_size[0], self.target_size[1], 3))
+        # Define the first input layer for images
+        input_images = Input(shape=(self.target_size[0], self.target_size[1], 3))
 
-        # Convolutional Block 1
-        x = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(input_layer)
-        x = BatchNormalization()(x)
-        x = Activation('relu')(x)
-        x = MaxPooling2D(pool_size=(2, 2))(x)
-        # Convolutional Block 2
-        x = Conv2D(filters=128, kernel_size=(3, 3), padding='same')(x)
-        x = BatchNormalization()(x)
-        x = Activation('relu')(x)
-        x = MaxPooling2D(pool_size=(2, 2))(x)
-        # Convolutional Block 3
-        x = Conv2D(filters=256, kernel_size=(3, 3), padding='same')(x)
-        x = BatchNormalization()(x)
-        x = Activation('relu')(x)
-        x = MaxPooling2D(pool_size=(2, 2))(x)
-        # Global Average Pooling
-        x = GlobalAveragePooling2D()(x)
-        # Fully Connected Layers
-        x = Dense(512, activation='relu')(x)
+        # Define the second input layer for keypoints
+        input_keypoints = Input(shape=(24,))
+
+        # Convolutional Block 1 for images
+        x_images = Conv2D(filters=64, kernel_size=(3, 3), padding='same')(input_images)
+        x_images = BatchNormalization()(x_images)
+        x_images = Activation('relu')(x_images)
+        x_images = MaxPooling2D(pool_size=(2, 2))(x_images)
+
+        # Convolutional Block 2 for images
+        x_images = Conv2D(filters=128, kernel_size=(3, 3), padding='same')(x_images)
+        x_images = BatchNormalization()(x_images)
+        x_images = Activation('relu')(x_images)
+        x_images = MaxPooling2D(pool_size=(2, 2))(x_images)
+
+        # Convolutional Block 3 for images
+        x_images = Conv2D(filters=256, kernel_size=(3, 3), padding='same')(x_images)
+        x_images = BatchNormalization()(x_images)
+        x_images = Activation('relu')(x_images)
+        x_images = MaxPooling2D(pool_size=(2, 2))(x_images)
+
+        # Flatten the output of the image processing
+        x_images = Flatten()(x_images)
+
+        # Fully Connected Layers for the image branch
+        x_images = Dense(512, activation='relu')(x_images)
+        x_images = Dropout(0.5)(x_images)  # Regularization
+        x_images = Dense(256, activation='relu')(x_images)
+
+        # Concatenate the image features with the keypoints
+        combined_features = Concatenate()([x_images, input_keypoints])
+
+        # Fully Connected Layers for the combined features
+        x = Dense(512, activation='relu')(combined_features)
         x = Dropout(0.5)(x)  # Regularization
         x = Dense(256, activation='relu')(x)
-        x = Dense(12, activation='linear')(x)
-        # unimplemented, will work on the current functions till ready
-       # pose_type = Dense(10, activation='sigmoid', name='pose_classification')
 
-        keypoints = Dense(12, activation='linear', name='keypoints_output')(x)
+        # Output layer for keypoints
+        keypoints = Dense(24, activation='linear', name='keypoints_output')(x)
 
-      #  pose_correctness = Dense(1, activation='sigmoid', name='pose_correctness_output')(x)
-
-        model = tf.keras.Model(inputs=input_layer, outputs=[keypoints])
+        model = tf.keras.Model(inputs=combined_features, outputs=[keypoints])
         model.compile(
             loss={'keypoints_output': 'mean_absolute_error'},
             optimizer='adam',
             metrics={'keypoints_output': 'mae'}
         )
 
-        # model.summary()
         return model
 
-    def train_model(self, train_images, train_keypoints, batch_size=5,
+    def train_model(self, train_images, train_keypoints, batch_size=1,
                     validation_split=0.1, num_epochs=1):
-        self.model.fit(train_images,
-                       {'keypoints_output': train_keypoints},
-                       epochs=num_epochs, batch_size=batch_size, validation_split=validation_split)
+        self.load_model()
+
+        # Concatenate the inputs into a single tensor
+        combined_features = Concatenate()([train_keypoints, train_images])
+
+        # Create a dictionary to specify the input names
+        input_dict = {
+            'input_1': train_images,  # Assuming the first input is for images
+            'input_2': train_keypoints  # Assuming the second input is for keypoints
+        }
+
+        self.model.fit( train_images,  # Use the dictionary to specify inputs
+                    epochs=num_epochs, batch_size=batch_size, validation_split=validation_split)
+
         self.save_model()
 
-    def evaluate_model(self, test_images, test_keypoints, batch_size=32):
+    def evaluate_model(self, test_images, test_keypoints, batch_size=1):
         # Evaluate the model and capture the evaluation metrics
-        evaluation_metrics = self.model.evaluate(
-            test_images,
-            {'keypoints_output': test_keypoints},
-            batch_size=batch_size
-        )
-        # Predict keypoints for the test images
-        keypoints_predictions = self.model.predict(test_images, batch_size=batch_size)
+         evaluation_metrics = self.model.evaluate(
+             test_images,
+             {'keypoints_output': test_keypoints},
+             batch_size=batch_size
+         )
+         keypoints_predictions = self.model.predict(test_images, batch_size=batch_size)
 
-        return keypoints_predictions
+         return keypoints_predictions
 
     def picture_model(self, test_images, batch_size=32):
         # Predict keypoints for the test images
