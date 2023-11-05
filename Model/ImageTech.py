@@ -42,7 +42,6 @@ class BaseCNN(nn.Module):
         # Apply the second fully connected layer
         x = self.fc2(x)
         return x
-# Create an instance of the dataset and dataloader
 data_folder = 'Processed_Images'
 label_csv = 'squat_labels.csv'
 
@@ -52,6 +51,7 @@ transform = transforms.Compose([
 ])
 
 dataset = DataSet(data_folder, label_csv, transform=transform)
+# Batch size is one for now until I have real data, this also makes sure I don't use all of my gpu memory
 dataloader = DataLoader(dataset, batch_size=1, shuffle=True)
 
 model = BaseCNN()
