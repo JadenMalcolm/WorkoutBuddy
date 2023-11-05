@@ -1,50 +1,6 @@
 import os
-from PIL import Image
 import numpy as np
 import cv2
-
-
-def checkResolution(input_folder):
-    # Returns a list of tuples representing resolutions from each image processed
-    image_resolutions = []
-    # Recursively traverse the directory tree starting from input_folder
-    for root, dirs, files in os.walk(input_folder):
-        for filename in files:
-            if filename.lower().endswith((".jpg", ".png", ".jpeg")):
-                image_path = os.path.join(root, filename)
-                image = Image.open(image_path)
-                width, height = image.size
-                image_resolutions.append((width, height))
-    # Return the list of image resolutions
-    return image_resolutions
-
-def normalize_and_save_images(input_folder, output_folder, resolution=(224, 224)):
-
-    # Create the output directory if it does not exist
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-
-    # Normalize and save each image
-    for root, _, files in os.walk(input_folder):
-        for filename in files:
-            if filename.lower().endswith((".jpg", ".png", ".jpeg")):
-                image_path = os.path.join(root, filename)
-                # Open the image file
-                with Image.open(image_path) as img:
-
-                    # Resize image to the specified resolution
-                    img = img.resize(resolution, Image.ANTIALIAS)
-                    # Save the normalized image to the output folder
-                    img.save(os.path.join(output_folder, filename))
-
-    # Return the list of image resolutions as a confirmation
-    return checkResolution(output_folder)
-
-# Example usage:
-# Assuming `input_folder` is a string path to the directory containing images
-# and `output_folder` is the path where you want to save the normalized images
-# image_resolutions = normalize_and_save_images(input_folder, output_folder, resolution=(224, 224))
-
 
 def extract_frames_from_folder(video_folder, frame_output):
     # void method, uses extract frames and to easily gather each video from a folder of folders
@@ -131,13 +87,11 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
                 print(f"Processed and saved {filename} in {output_path}")
 
     print("Preprocessing completed.")
+    return None
 
 
 image_folder = 'Images'
 processed_image_folder = 'Processed_Images'
 video = 'VideoData'
 numpy_data = 'numpy_data'
-originalResolution = checkResolution(image_folder)
-
 preprocessed_images = preprocess_images(image_folder, processed_image_folder)
-
