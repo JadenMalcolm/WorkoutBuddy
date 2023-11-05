@@ -3,11 +3,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
-# Make sure to properly import your CustomDataset class
 from DataLoader import DataSet
 import torch.nn.functional as F
 
-# Define your model
 class BaseCNN(nn.Module):
     def __init__(self):
         super(BaseCNN, self).__init__()
