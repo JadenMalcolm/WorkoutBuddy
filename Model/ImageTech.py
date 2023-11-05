@@ -78,7 +78,8 @@ for epoch in range(num_epochs):
 
     for i, data in enumerate(dataloader, 0):
         inputs, labels = data
-        inputs, labels = inputs.to(device), labels.to(device)
+        if torch.cuda.is_available():
+            inputs, labels = inputs.to(device), labels.to(device)
 
         # Zero the parameter gradients
         optimizer.zero_grad()
