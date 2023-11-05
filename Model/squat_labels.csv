@@ -1,0 +1,7 @@
+sequence_id, frame_id, filename, label
+001,1,Frame1.jpg, 0
+001,2,Frame2.jpg, 0
+001,3,Frame3.jpg, 0
+001,4,Frame4.jpg, 0
+001,5,Frame5.jpg, 0
+001,6,Frame6.jpg, 0
