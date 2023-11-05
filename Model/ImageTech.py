@@ -12,7 +12,7 @@ class BaseCNN(nn.Module):
         # First convolutional layer with 3x3 kernel
         self.conv1 = nn.Conv2d(1, 16, kernel_size=3, stride=1, padding=1)  # Adding padding to keep dimensions
         # Second convolutional layer with 2x2 kernel
-        self.conv2 = nn.Conv2d(16, 32, kernel_size=2, stride=1, padding=0)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=2, stride=1, padding=0) # No padding needed for 2x2
         # Third convolutional layer with 1x1 kernel
         self.conv3 = nn.Conv2d(32, 64, kernel_size=1, stride=1, padding=0)  # No padding needed for 1x1
         # This is smaller model than what I would like to use in the BaseCNN, I don't have enough computer
