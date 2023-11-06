@@ -37,61 +37,44 @@ def extract_frames(video_path, frame_output, video_index):
     cam.release()
 
 
+
 def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
-    # First pass to calculate mean and standard deviation
-    pixel_sum = 0
-    pixel_sum_squared = 0
-    num_pixels = 0
+    # Iterate over images and apply min-max normalization
     for root, dirs, files in os.walk(input_folder):
         for filename in files:
             if filename.lower().endswith((".jpg", ".png", ".jpeg")):
                 image_path = os.path.join(root, filename)
-                image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)  # Assuming grayscale images
+                image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
                 image = cv2.resize(image, target_size)
-                pixels = image.flatten()
-                pixel_sum += np.sum(pixels)
-                pixel_sum_squared += np.sum(pixels ** 2)
-                num_pixels += len(pixels)
 
-    # Calculate global mean and standard deviation
-    global_mean = pixel_sum / num_pixels
-    # Calculate variance, ensuring non-negativity
-    variance = (pixel_sum_squared / num_pixels) - (global_mean ** 2)
-    variance = max(variance, 0)  # Ensure the variance is not negative
-    global_std = np.sqrt(variance)
+                # Apply min-max normalization
+                min_val = np.min(image)
+                print(min_val)
+                max_val = np.max(image)
+                print(max_val)
+                print(max_val - min_val)
+                # Avoid division by zero if the image is completely white
+                if max_val - min_val != 0:
+                    image = (image - min_val) / (max_val - min_val)
+                else:
+                    #here if image is 0, this just makes it 1 again, shoudln't happen anyway
+                    image = image.astype(np.float64) / 255.0
 
-    # Second pass to normalize and save images
-    for root, dirs, files in os.walk(input_folder):
-        for filename in files:
-            if filename.lower().endswith((".jpg", ".png", ".jpeg")):
-                image_path = os.path.join(root, filename)
-                image = cv2.imread(image_path)
-                image = cv2.resize(image, target_size)
-                image = cv2.cvtColor(image, cv2.IMREAD_GRAYSCALE)  # Convert to grayscale
-                image = image.astype(np.float32) / 255.0  # Scale pixel values to [0, 1]
-
-                # Normalize the image
-                image = (image - global_mean) / global_std
-
-                # Make sure to create corresponding subdirectories
+                # Create output directories if they don't exist
                 relative_path = os.path.relpath(root, input_folder)
                 output_dir = os.path.join(output_folder, relative_path)
-                if not os.path.exists(output_dir):
-                    os.makedirs(output_dir)
+                os.makedirs(output_dir, exist_ok=True)
 
+                # Save the normalized image
                 output_path = os.path.join(output_dir, filename)
-                # Rescale the normalized image back to [0, 255] for saving
-                output_image = np.clip(image * 255, 0, 255).astype(np.uint8)
-                cv2.imwrite(output_path, output_image)
+                cv2.imwrite(output_path, (image * 255).astype(np.uint8))  # Save as 8-bit image
 
                 print(f"Processed and saved {filename} in {output_path}")
 
     print("Preprocessing completed.")
-    return None
-
 
 image_folder = 'Images'
 processed_image_folder = 'Processed_Images'
 video = 'VideoData'
 numpy_data = 'numpy_data'
-preprocessed_images = preprocess_images(image_folder, processed_image_folder)
+preprocess_images(image_folder, processed_image_folder)

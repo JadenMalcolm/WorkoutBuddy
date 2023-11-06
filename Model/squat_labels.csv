@@ -1,7 +1,19 @@
-sequence_id, frame_id, filename, label
-001,1,Frame1.jpg, 0
-001,2,Frame2.jpg, 0
-001,3,Frame3.jpg, 0
-001,4,Frame4.jpg, 0
-001,5,Frame5.jpg, 0
-001,6,Frame6.jpg, 0
+001,1,Frame1.jpg,0
+002,2,Squat2.jpg,0
+003,3,Squat3.jpg,0
+004,4,Squat4.jpg,0
+005,5,Squat5.jpg,0
+006,6,Squat6.jpg,0
+007,7,Squat7.jpg,0
+008,8,Squat8.jpg,0
+009,9,Pushup1.jpg,1
+010,10,Pushup2.jpg,1
+011,11,Pushup3.jpg,1
+012,12,Pushup4.jpg,1
+013,13,Pushup5.jpg,1
+014,14,Pushup6.jpg,1
+015,15,Pushup7.jpg,1
+016,16,Pushup8.jpg,1
+
+
+
