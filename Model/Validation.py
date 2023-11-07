@@ -1,33 +1,54 @@
-import torch.nn
-from ImageTech import model, dataloader, device
-loaded_state_dict = torch.load('trained_model.pth')
+import torch
+from ImageTech import BaseCNN  # Import the BaseCNN class
+from torchvision import transforms
+from DataLoader import DataSet  # Make sure to import your actual DataSet
+from torch.utils.data import DataLoader
 
-# Updating the model with the loaded state dictionary
-model.load_state_dict(loaded_state_dict)
-model.eval() #Model set to evaluate
+# Define the path to your saved model and data
+model_path = 'trained_model.pth'
+data_folder = 'Processed_Images'
+label_csv = 'squat_labels.csv'
+num_classes = 4
+batch_size = 16
+
+# Initialize the device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Initialize the model
+model = BaseCNN(data_folder, label_csv, num_classes=num_classes, batch_size=batch_size)
+model.to(device)
+
+# Load the saved model state
+model.load_state_dict(torch.load(model_path))
+model.eval()
+
+# Define the transform
+transform = transforms.Compose([transforms.ToTensor()])
+
+# Prepare the DataLoader
+dataset = DataSet(data_folder, label_csv, transform=transform)
+dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+
+# Perform the validation
 confidence_threshold = 0.5
 for inputs, _ in dataloader:
-    if torch.cuda.is_available():
-        inputs = inputs.to(device)
+    inputs = inputs.to(device)
 
     # Forward pass to get outputs
     with torch.no_grad():
         outputs = model(inputs)
 
     # Convert outputs to probabilities
-    print(inputs)
     probabilities = torch.sigmoid(outputs)
-    print(probabilities)
 
     # Apply the confidence threshold
     predictions = (probabilities >= confidence_threshold).int()
 
-    # Get the predicted class indices with high confidence
-    predicted_classes = predictions.nonzero(as_tuple=True)[1]
-
-    # Print the predicted class indices
-    print(f'Predicted class indices with high confidence: {predicted_classes.tolist()}')
+    # Check predictions for each item in the batch
+    for i in range(predictions.shape[0]):
+        # Get the predicted classes for each sample in the batch
+        predicted_classes = predictions[i].nonzero(as_tuple=False).squeeze(1).tolist()
+        print(f'Predicted classes for sample {i}: {predicted_classes}')
 
 # You can now analyze the predicted_classes to see which classes the model predicts with high confidence
-
 print('Finished Predicting')

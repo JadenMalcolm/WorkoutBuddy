@@ -2,6 +2,7 @@ import os
 import numpy as np
 import cv2
 
+
 def extract_frames_from_folder(video_folder, frame_output):
     # void method, uses extract frames and to easily gather each video from a folder of folders
     try:
@@ -27,15 +28,14 @@ def extract_frames(video_path, frame_output, video_index):
         ret, frame = cam.read()
 
         if ret:
-            name = os.path.join(frame_output, f"video{video_index}_frame{current_frame:04d}.jpg")
-            print(f"Creating... {name}")
+            name = os.path.join(frame_output, f"video{video_index}_frame{current_frame}.jpg")
+            print(f"{video_index},{current_frame},video{video_index}_frame{current_frame}.jpg")
             cv2.imwrite(name, frame)
             current_frame += 1
         else:
             break
     # Stops gathering frames
     cam.release()
-
 
 
 def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
@@ -49,15 +49,13 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
 
                 # Apply min-max normalization
                 min_val = np.min(image)
-                print(min_val)
                 max_val = np.max(image)
-                print(max_val)
-                print(max_val - min_val)
+
                 # Avoid division by zero if the image is completely white
                 if max_val - min_val != 0:
                     image = (image - min_val) / (max_val - min_val)
                 else:
-                    #here if image is 0, this just makes it 1 again, shoudln't happen anyway
+                    # here if image is 0, this just makes it 1 again, shouldn't happen anyway
                     image = image.astype(np.float64) / 255.0
 
                 # Create output directories if they don't exist
@@ -69,12 +67,11 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
                 output_path = os.path.join(output_dir, filename)
                 cv2.imwrite(output_path, (image * 255).astype(np.uint8))  # Save as 8-bit image
 
-                print(f"Processed and saved {filename} in {output_path}")
-
     print("Preprocessing completed.")
+
 
 image_folder = 'Images'
 processed_image_folder = 'Processed_Images'
 video = 'VideoData'
-numpy_data = 'numpy_data'
+extract_frames_from_folder(video, image_folder)
 preprocess_images(image_folder, processed_image_folder)

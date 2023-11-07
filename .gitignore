@@ -151,3 +151,7 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+#Video and image data
+VideoData/
+Processed_Images/
+Images/
