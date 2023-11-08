@@ -19,7 +19,11 @@ model = BaseCNN(data_folder, label_csv, num_classes=num_classes, batch_size=batc
 model.to(device)
 
 # Load the saved model state
-model.load_state_dict(torch.load(model_path))
+if torch.cuda.is_available():
+    model.load_state_dict(torch.load(model_path))
+else:
+    model.load_state_dict(torch.load(model_path, map_location='cpu'))
+
 model.eval()
 
 # Define the transform
