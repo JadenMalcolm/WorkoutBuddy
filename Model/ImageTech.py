@@ -47,7 +47,7 @@ class BaseCNN(nn.Module):
 
         # Load dataset and dataloader
         self.dataset = DataSet(self.data_folder, self.label_csv, transform=self.get_transforms())
-        self.dataloader = DataLoader(self.dataset, batch_size=self.batch_size, shuffle=False, collate_fn=self.collate_fn)
+        self.dataloader = DataLoader(self.dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self.collate_fn)
 
     def initialize_size(self):
         with torch.no_grad():
