@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import cv2
-
+import csv
 
 def extract_frames_from_folder(video_folder, frame_output):
     # void method, uses extract frames and to easily gather each video from a folder of folders
@@ -24,18 +24,32 @@ def extract_frames(video_path, frame_output, video_index):
     cam = cv2.VideoCapture(video_path)
     current_frame = 1
 
-    while True:
-        ret, frame = cam.read()
+    # Specify the CSV file name outside the loop
+    file_name = "test_labels.csv"
 
-        if ret:
-            name = os.path.join(frame_output, f"video{video_index}_frame{current_frame}.jpg")
-            print(f"{video_index},{current_frame},video{video_index}_frame{current_frame}.jpg")
-            cv2.imwrite(name, frame)
-            current_frame += 1
-        else:
-            break
+    # Open the CSV file in append mode
+    with open(file_name, 'a', newline='') as csvfile:
+        # Create a CSV writer object
+        csv_writer = csv.writer(csvfile)
+
+        while True:
+            ret, frame = cam.read()
+
+            if ret:
+                name = os.path.join(frame_output, f"video{video_index}_frame{current_frame}.jpg")
+                print(f"{video_index},{current_frame},video{video_index}_frame{current_frame}.jpg")
+
+                # Write a single row to the CSV file
+                csv_writer.writerow([video_index, current_frame, f"video{video_index}_frame{current_frame}.jpg"])
+
+                cv2.imwrite(name, frame)
+                current_frame += 1
+            else:
+                break
+
     # Stops gathering frames
     cam.release()
+
 
 
 def preprocess_images(input_folder, output_folder, target_size=(224, 224)):

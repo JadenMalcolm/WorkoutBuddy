@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # Load the CSV file
-df = pd.read_csv('pre_labels.csv')
+df = pd.read_csv('test_labels.csv')
 
 manual_labels = {
     1: [0, 1, 1, 1, 1],
@@ -19,7 +19,7 @@ manual_labels = {
 }
 
 # Define the label columns
-label_columns = ['good_form', 'not_deep_enough', 'back_bent', 'knees_too_forward', 'heels_up']
+label_columns = ['good_form', 'not_deep', 'back_bent', 'knees_forward', 'heels_up']
 
 # Iterate through the DataFrame and set the labels according to the sequence_id
 for sequence_id, labels in manual_labels.items():

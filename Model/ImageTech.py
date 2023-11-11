@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from DataLoader import DataSet
+from CustomLoader import DataSet
 
 class BaseCNN(nn.Module):
     def __init__(self, data_folder, label_csv, num_classes=4, batch_size=16, num_epochs=10):
@@ -97,6 +97,8 @@ class BaseCNN(nn.Module):
                 loss = self.criterion(outputs, labels.float())
                 print(labels.shape)
                 print(inputs.shape)
+                print(labels)
+                print(inputs)
                 loss.backward()
                 self.optimizer.step()
                 running_loss += loss.item()
@@ -108,7 +110,7 @@ class BaseCNN(nn.Module):
 # Create an instance of the model and train it
 if __name__ == '__main__':
     data_folder = 'Processed_Images'
-    label_csv = 'squat_labels.csv'
+    label_csv = 'test_labels.csv'
     model = BaseCNN(data_folder, label_csv)
     model.train_model()
 
