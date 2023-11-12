@@ -24,10 +24,8 @@ def extract_frames(video_path, frame_output, video_index):
     cam = cv2.VideoCapture(video_path)
     current_frame = 1
 
-    # Specify the CSV file name outside the loop
     file_name = "test_labels.csv"
 
-    # Open the CSV file in append mode
     with open(file_name, 'a', newline='') as csvfile:
         # Create a CSV writer object
         csv_writer = csv.writer(csvfile)
@@ -39,7 +37,6 @@ def extract_frames(video_path, frame_output, video_index):
                 name = os.path.join(frame_output, f"video{video_index}_frame{current_frame}.jpg")
                 print(f"{video_index},{current_frame},video{video_index}_frame{current_frame}.jpg")
 
-                # Write a single row to the CSV file
                 csv_writer.writerow([video_index, current_frame, f"video{video_index}_frame{current_frame}.jpg"])
 
                 cv2.imwrite(name, frame)
