@@ -1,7 +1,7 @@
 import torch
-from ImageTech import BaseCNN  # Import the BaseCNN class
+from ImageTech import BaseCNN
 from torchvision import transforms
-from DataLoader import DataSet  # Make sure to import your actual DataSet
+from CustomLoader import DataSet
 from torch.utils.data import DataLoader
 
 # Define the path to your saved model and data
@@ -54,5 +54,4 @@ for inputs, _ in dataloader:
         predicted_classes = predictions[i].nonzero(as_tuple=False).squeeze(1).tolist()
         print(f'Predicted classes for sample {i}: {predicted_classes}')
 
-# You can now analyze the predicted_classes to see which classes the model predicts with high confidence
 print('Finished Predicting')

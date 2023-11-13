@@ -27,11 +27,3 @@ class Config:
 
         return config_dict
 
-    # Example usage:
-    config_file_path = 'config.cfg'
-    config_dict = parse_config_file(config_file_path)
-
-    # Now you can access values like this:
-    convolutional_config = config_dict['convolutional']
-    print(convolutional_config['batch_normalize'])
-    print(convolutional_config['filters'])
