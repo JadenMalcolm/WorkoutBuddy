@@ -20,6 +20,8 @@ if __name__ == '__main__':
 
     # Create model
     model = BaseCNN(config.num_classes)
+    print(model)
+    input()
 
     # Create optimizer and criterion
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)

@@ -4,7 +4,6 @@ import torch.nn.functional as F
 import configparser
 from memory_profiler import profile
 
-# Set a limit on virtual memory (in bytes)
 def parse_config_file(config_file_path):
     config = configparser.ConfigParser()
     config.read(config_file_path)
@@ -22,18 +21,14 @@ config_file_path = 'config.cfg'
 config_dict = parse_config_file(config_file_path)
 print(config_dict)
 
-convolutional_config = config_dict['convolutional']
-
-
 class DynamicCNN(nn.Module):
     @profile
     def __init__(self, config, num_classes=4):
         super(DynamicCNN, self).__init__()
 
         # Define the architecture
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
 
-        self.layers = self.create_layers(config, num_classes)
+        self.layers = self.create_layers(config)
         print(self.layers)
 
         # Initialize dummy input to calculate the flattened feature size
@@ -42,7 +37,6 @@ class DynamicCNN(nn.Module):
         # Define the fully connected layers
         self.fc1 = nn.Linear(self.flattened_size, 256)
         self.fc2 = nn.Linear(256, num_classes)
-        self.dropout = nn.Dropout(0.5)  # Add dropout layer
 
     @profile
     def initialize_size(self):
@@ -65,15 +59,15 @@ class DynamicCNN(nn.Module):
         return x
 
     @profile
-    def create_layers(self, config, num_classes):
+    def create_layers(self, config):
         layers = []
         for layer_config in config.values():
             layer_type = layer_config.get('type', 'unknown')
             print(layer_type)
-            if layer_type == 'convolutional':
+            if layer_type.startswith('convolutional_'):
                 print(int(layer_config['in_channels']))
                 print(int(layer_config['out_channels']))
-                print(int(layer_config['size']))
+                print(int(layer_config['kernel_size']))
                 print(int(layer_config['stride']))
                 print(int(layer_config['pad']))
 
@@ -81,12 +75,24 @@ class DynamicCNN(nn.Module):
                 layers.append(nn.Conv2d(
                     in_channels=int(layer_config['in_channels']),
                     out_channels=int(layer_config['out_channels']),
-                    kernel_size=int(layer_config['size']),
+                    kernel_size=int(layer_config['kernel_size']),
                     stride=int(layer_config['stride']),
                     padding=int(layer_config['pad'])
                 ))
-                layers.append(nn.ReLU())
-                layers.append(nn.BatchNorm2d(int(layer_config['out_channels']))) 
+                layers.append(nn.BatchNorm2d(int(layer_config['out_channels'])))
+                layers.append(nn.Dropout(float(layer_config['dropout'])))
+
+            if layer_type.startswith('pool_'):
+                print(int(layer_config['kernel_size']))
+                print(int(layer_config['stride']))
+                print(int(layer_config['pad']))
+
+                layers.append(nn.MaxPool2d(
+                    kernel_size=int(layer_config['kernel_size']),
+                    stride=int(layer_config['stride']),
+                    padding=int(layer_config['pad'])
+                ))
+
 
 
         return nn.Sequential(*layers)
@@ -96,12 +102,6 @@ class DynamicCNN(nn.Module):
        # layers.append(nn.Dropout(0.5))
        # layers.append(nn.Linear(256, num_classes))
 
-
-
-# Example configuration (modify according to your actual layer configurations)
-config_dict = {
-    'convolutional': {'type': 'convolutional', 'in_channels': 1, 'out_channels': 64, 'size': 3, 'stride': 1, 'pad': 1}
-}
 
 # Create an instance of the model
 dynamic_model = DynamicCNN(config_dict)
