@@ -15,9 +15,7 @@ class Config:
     def get_transforms():
         return transforms.Compose([transforms.ToTensor(),])
 
-
-    @staticmethod
-    def parse_config_file(config_file_path):
+    def parse_config_file(self, config_file_path):
         config = configparser.ConfigParser()
         config.read(config_file_path)
 
