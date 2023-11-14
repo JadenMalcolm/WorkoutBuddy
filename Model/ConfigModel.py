@@ -38,8 +38,6 @@ class DynamicCNN(nn.Module):
         self.fc1 = nn.Linear(self.flattened_size, 256)
         self.fc2 = nn.Linear(256, num_classes)
 
-
-
     def initialize_size(self):
         with torch.no_grad():
             dummy_input = torch.zeros(1, 1, 224, 224)
@@ -48,20 +46,23 @@ class DynamicCNN(nn.Module):
 
     def features(self, x):
         for layer in self.layers:
-            x = layer(x)
+            x = self.pool(layer(F.leaky_relu)(x))
         return x
+
+    # terrible function, would not recommend
     def forward(self, x):
         for layer, dropout in zip(self.layers, self.dropout):
             x = layer(x)
             if isinstance(layer, nn.Conv2d):
-                x = F.relu(x)  # Applying ReLU after each convolutional layer
+                x = F.relu(x)
 
         x = x.view(x.size(0), -1)
         x = self.dropout(F.relu(self.fc1(x)))
         x = self.fc2(x)
         return x
 
-    def create_layers(self, config):
+    @staticmethod
+    def create_layers(config):
         layers = []
         dropout_layers = []
 
@@ -77,7 +78,6 @@ class DynamicCNN(nn.Module):
                 ))
                 layers.append(nn.BatchNorm2d(int(layer_config['out_channels'])))
 
-                # For dropout, store the probability, to apply later
                 dropout_prob = float(layer_config['dropout'])
                 dropout_layers.append(nn.Dropout(dropout_prob))
 

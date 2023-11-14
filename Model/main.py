@@ -3,6 +3,7 @@ import torch
 from torchvision import transforms
 from Config import Config
 from ConfigModel import DynamicCNN, config_dict
+
 from Train import Train
 from CustomLoader import DataSet
 from torch.utils.data import DataLoader
