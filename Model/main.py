@@ -1,15 +1,16 @@
 import argparse
 import torch
 from torchvision import transforms
-from Config import Config
-from ConfigModel import DynamicCNN, config_dict
+from Config import Config, parse_config_file
+from ConfigModel import DynamicCNN
 from Train import Train
 from CustomLoader import DataSet
 from torch.utils.data import DataLoader
 
 def main(args):
     config = Config()
-    config_file = 'config.cfg'
+    config_file_path = 'config.cfg'
+    config_dict = parse_config_file(config_file_path)
     # Define transforms
     transform = transforms.Compose([transforms.ToTensor(),])
 
@@ -19,8 +20,6 @@ def main(args):
 
     # Create model
     model = DynamicCNN(config_dict, 8)
-    print(config_dict)
-    print(model)
 
     # Create optimizer and criterion
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
@@ -50,6 +49,10 @@ def main(args):
 
 
 if __name__ == '__main__':
+    config = Config()
+    config_file_path = 'config.cfg'  # Replace with your config file path
+    config_dict = parse_config_file(config_file_path)
+    # Define transforms
     parser = argparse.ArgumentParser(description='Training or Validation')
     parser.add_argument('--train', action='store_true', help='Train the model')
     parser.add_argument('--validate', action='store_true', help='Validate the model')

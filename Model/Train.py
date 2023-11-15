@@ -14,12 +14,6 @@ class Train:
                 inputs, labels = data
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 self.optimizer.zero_grad()
-
-                print(labels)
-                print(inputs)
-                print(inputs.shape)
-                print(labels.shape)
-                input("what the shape be tho")
                 outputs = self.model(inputs)
                 loss = self.criterion(outputs, labels.float())
                 loss.backward()
