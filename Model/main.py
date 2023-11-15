@@ -1,15 +1,13 @@
-# main.py
+import argparse
 import torch
 from torchvision import transforms
 from Config import Config
 from ConfigModel import DynamicCNN, config_dict
-
 from Train import Train
 from CustomLoader import DataSet
 from torch.utils.data import DataLoader
 
-
-if __name__ == '__main__':
+def main(args):
     config = Config()
     config_file = 'config.cfg'
     # Define transforms
@@ -22,7 +20,6 @@ if __name__ == '__main__':
     # Create model
     model = DynamicCNN(config_dict, 8)
     print(config_dict)
-
     print(model)
 
     # Create optimizer and criterion
@@ -39,5 +36,24 @@ if __name__ == '__main__':
     # Create trainer
     trainer = Train(model, dataloader, criterion, optimizer, device)
 
-    # Train the model
-    trainer.train_model(config.num_epochs)
+    if args.train:
+        trainer.train_model(config.num_epochs)
+    elif args.validate:
+        pass
+    elif args.fast:
+        pass
+    elif args.accurate:
+        pass
+    else:
+        print("no arguments given")
+        trainer.train_model(config.num_epochs)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Training or Validation')
+    parser.add_argument('--train', action='store_true', help='Train the model')
+    parser.add_argument('--validate', action='store_true', help='Validate the model')
+    parser.add_argument('--fast', action='store_true', help='Fast training mode')
+    parser.add_argument('--accurate', action='store_true', help='Accurate training mode')
+    args = parser.parse_args()
+    main(args)

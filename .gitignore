@@ -159,4 +159,5 @@ cython_debug/
 *.gif
 *.mp4
 *.webp
+*.mkv
 

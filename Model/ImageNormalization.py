@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import csv
 
+
 def extract_frames_from_folder(video_folder, frame_output):
     # void method, uses extract frames and to easily gather each video from a folder of folders
     try:
@@ -48,7 +49,6 @@ def extract_frames(video_path, frame_output, video_index):
     cam.release()
 
 
-
 def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
     # Iterate over images and apply min-max normalization
     for root, dirs, files in os.walk(input_folder):
@@ -83,6 +83,6 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
 
 image_folder = 'Images'
 processed_image_folder = 'Processed_Images'
-video = 'VideoData'
+video = 'Video_Data'
 extract_frames_from_folder(video, image_folder)
 preprocess_images(image_folder, processed_image_folder)
