@@ -160,4 +160,5 @@ cython_debug/
 *.mp4
 *.webp
 *.mkv
-
+#ide
+.idea/
