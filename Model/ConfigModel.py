@@ -51,7 +51,7 @@ class DynamicCNN(nn.Module):
         return x
     def initialize_size(self):
         with torch.no_grad():
-            dummy_input = torch.zeros(1, 1, 224, 224)
+            dummy_input = torch.zeros(1, 3, 224, 224)
             dummy_output = self.layers(dummy_input)
             self.flattened_size = dummy_output.view(-1).shape[0]
 

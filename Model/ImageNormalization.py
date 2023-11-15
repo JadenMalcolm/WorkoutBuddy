@@ -55,7 +55,7 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
         for filename in files:
             if filename.lower().endswith((".jpg", ".png", ".jpeg")):
                 image_path = os.path.join(root, filename)
-                image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+                image = cv2.imread(image_path, cv2.IMREAD_COLOR)
                 image = cv2.resize(image, target_size)
 
                 # Apply min-max normalization
