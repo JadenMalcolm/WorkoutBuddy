@@ -5,7 +5,7 @@ import csv
 
 
 def extract_frames_from_folder(video_folder, frame_output):
-    # void method, uses extract frames and to easily gather each video from a folder of folders
+    # Use extract frames and to easily gather each video from a folder of folders
     try:
         if not os.path.exists(frame_output):
             os.makedirs(frame_output)

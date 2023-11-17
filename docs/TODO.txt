@@ -1,0 +1,3 @@
+implement YOLO as the segmentor of the frames of images, this allows for an accurate heatmap of the person
+Model can be built on one of the py-torches many resnet model with experimentation on which to use(likely the most
+powerful version being resnet151).

@@ -5,7 +5,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from CustomLoader import DataSet
-
+"""THIS METHOD IS OBSOLETE BUT KEPT FOR BASE MODEL OF HOW THE MODEL IS CONFIGURED"""
 class BaseCNN(nn.Module):
     def __init__(self, data_folder, label_csv, num_classes=4, batch_size=16, num_epochs=10):
         super(BaseCNN, self).__init__()
@@ -76,7 +76,7 @@ class BaseCNN(nn.Module):
     def collate_fn(batch):
         images, labels_list = zip(*batch)
         # Set num_classes to the total number of unique labels in your dataset.
-        num_classes = 4  # Update this to the actual number of unique labels in your dataset.
+        num_classes = 4
         one_hot_labels = torch.zeros(len(labels_list), num_classes)
         for i, labels in enumerate(labels_list):
             # labels is a list of integers indicating which classes are present.

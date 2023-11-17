@@ -50,9 +50,8 @@ def main(args):
 
 if __name__ == '__main__':
     config = Config()
-    config_file_path = 'config.cfg'  # Replace with your config file path
+    config_file_path = 'config.cfg'
     config_dict = parse_config_file(config_file_path)
-    # Define transforms
     parser = argparse.ArgumentParser(description='Training or Validation')
     parser.add_argument('--train', action='store_true', help='Train the model')
     parser.add_argument('--validate', action='store_true', help='Validate the model')
