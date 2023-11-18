@@ -24,6 +24,8 @@ def extract_frames_from_folder(video_folder, frame_output):
 def extract_frames(video_path, frame_output, video_index):
     cam = cv2.VideoCapture(video_path)
     current_frame = 1
+    frame_interval = 10
+    frame_count = 0
 
     file_name = "test_labels.csv"
 
@@ -35,19 +37,23 @@ def extract_frames(video_path, frame_output, video_index):
             ret, frame = cam.read()
 
             if ret:
-                name = os.path.join(frame_output, f"video{video_index}_frame{current_frame}.jpg")
-                print(f"{video_index},{current_frame},video{video_index}_frame{current_frame}.jpg")
+                frame_count += 1
 
-                csv_writer.writerow([video_index, current_frame, f"video{video_index}_frame{current_frame}.jpg"])
+                # Check if the current frame is a multiple of the interval
+                if frame_count % frame_interval == 0:
+                    name = os.path.join(frame_output, f"video{video_index}_frame{current_frame}.jpg")
+                    print(f"{video_index},{current_frame},video{video_index}_frame{current_frame}.jpg")
 
-                cv2.imwrite(name, frame)
-                current_frame += 1
+                    csv_writer.writerow([video_index, current_frame, f"video{video_index}_frame{current_frame}.jpg"])
+
+                    cv2.imwrite(name, frame)
+                    current_frame += 1
+
             else:
                 break
 
     # Stops gathering frames
     cam.release()
-
 
 def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
     # Iterate over images and apply min-max normalization
@@ -81,7 +87,7 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
     print("Preprocessing completed.")
 
 
-image_folder = 'Images'
+image_folder = 'Test_Images'
 processed_image_folder = 'Processed_Images'
 video = 'Video_Data'
 extract_frames_from_folder(video, image_folder)
