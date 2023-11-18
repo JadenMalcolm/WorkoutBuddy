@@ -2,37 +2,54 @@ from ultralytics.data.annotator import auto_annotate, YOLO
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+import os
 
-#auto_annotate(data="Test_Segmentation", det_model="yolov8x.pt", sam_model='sam_b.pt', device='CPU')
+#auto_annotate(data="Test_Segmentation/video9_frame3.jpg", det_model="yolov8x.pt", sam_model='sam_b.pt', device='CPU')
 #model = YOLO('yolov8x.pt')
-#results = model('Test_Segmentation/video3_frame4.jpg')  # predict on an image
-with open('Test_Segmentation_auto_annotate_labels/video11_frame1.txt', 'r') as file:
-    sequence_of_values = [float(value) for value in file.read().split()]
+#results = model('Test_Segmentation/video9_frame3.jpg')  # predict on an image
+directory = "Test_Segmentation_auto_annotate_labels"
+for filename in os.listdir(directory):
+    if filename.endswith('.txt'):
+        file_path = os.path.join(directory, filename)
 
-desired_height = 384
-desired_width = 640
+        with open(file_path, 'r') as file:
+            original_values = [float(value) for value in file.read().split()]
+            sequence_of_values = original_values * 255
 
-num_elements = desired_height * desired_width
+        desired_height = 384
+        desired_width = 640
 
-if len(sequence_of_values) < num_elements:
-    sequence_of_values += [0.0] * (num_elements - len(sequence_of_values))
-elif len(sequence_of_values) > num_elements:
-    sequence_of_values = sequence_of_values[:num_elements]
+        num_elements = desired_height * desired_width
 
-image_array = np.array(sequence_of_values).reshape((desired_height, desired_width))
+        if len(sequence_of_values) < num_elements:
+            sequence_of_values += [0.0] * (num_elements - len(sequence_of_values))
+        elif len(sequence_of_values) > num_elements:
+            sequence_of_values = sequence_of_values[:num_elements]
 
-original_image = cv2.imread('Test_Segmentation/video11_frame1.jpg')
-original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+        image_array = np.array(sequence_of_values).reshape((desired_height, desired_width))
 
-resized_original = cv2.resize(original_image, (desired_width, desired_height))
+        # Load the corresponding image
+        image_name = os.path.splitext(filename)[0] + '.jpg'
+        image_path = os.path.join('Test_Segmentation', image_name)
 
-#
-mask = np.zeros_like(resized_original)
-mask[image_array > 0] = [255, 0, 0]
+        original_image = cv2.imread(image_path)
+        original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
+        image_height, image_width, _ = original_image.shape
 
-overlay = cv2.addWeighted(resized_original, 1, mask, 0.5, 0)
+        # Reshape the sequence into pairs of coordinates
+        num_points = len(sequence_of_values) // 2
+        points = np.array(sequence_of_values).reshape((num_points, 2))
 
-plt.imshow(overlay)
-plt.title('Original Image with Segmentation Overlay')
-plt.axis('off')
-plt.show()
+        points[:, 0] *= image_width  # Scale x coordinates
+        points[:, 1] *= image_height  # Scale y coordinates
+
+        # Plot points on the image
+        for point in points:
+            x, y = point.astype(int)
+            cv2.circle(original_image, (x, y), 3, (255, 0, 0), -1)  # Draw a circle for each point
+
+        # Display the image with plotted points
+        plt.imshow(original_image)
+        plt.title(f'Image: {image_name} with Plotted Points')
+        plt.axis('off')
+        plt.show()
