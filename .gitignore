@@ -164,3 +164,5 @@ cython_debug/
 .idea/
 #outside models
 *.pt
+yolov8x.pt
+sam_b.pt
