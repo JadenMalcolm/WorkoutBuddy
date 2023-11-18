@@ -28,7 +28,7 @@ resized_original = cv2.resize(original_image, (desired_width, desired_height))
 
 #
 mask = np.zeros_like(resized_original)
-mask[image_array > 0] = [255, 0, 0] 
+mask[image_array > 0] = [255, 0, 0]
 
 overlay = cv2.addWeighted(resized_original, 1, mask, 0.5, 0)
 
