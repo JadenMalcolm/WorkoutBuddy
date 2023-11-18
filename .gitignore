@@ -162,3 +162,5 @@ cython_debug/
 *.mkv
 #ide
 .idea/
+#outside models
+*.pt
