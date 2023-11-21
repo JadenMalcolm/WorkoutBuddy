@@ -8,6 +8,7 @@ class Train:
 
     def train_model(self, num_epochs):
         self.model.to(self.device)
+        print(self.model)
         for epoch in range(num_epochs):
             running_loss = 0.0
             for i, data in enumerate(self.dataloader, 0):

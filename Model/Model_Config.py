@@ -8,13 +8,17 @@ def parse_config_file(config_file_path):
 
     config_dict = {}
     for section in config.sections():
-        config_dict[section] = dict(config.items(section))
+        layer_type = section.lower()
+        layer_config = dict(config.items(section))
+        layer_config['type'] = layer_type
+        config_dict[layer_type] = layer_config
 
     return config_dict
+config_file = 'CNN_config.cfg'
+
 class Config:
     data_folder = 'Processed_Images'
     label_csv = 'cleaned_labels.csv'
-    config_file = 'config.cfg'
 
     num_classes = 8
     batch_size = 1

@@ -2,31 +2,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import configparser
-from memory_profiler import profile
+config_file_path = 'CNN_config.cfg'
 
-"""def parse_config_file(config_file_path):
-    config = configparser.ConfigParser()
-    config.read(config_file_path)
 
-    config_dict = {}
-    for section in config.sections():
-        layer_type = section.lower()
-        layer_config = dict(config.items(section))
-        layer_config['type'] = layer_type
-        config_dict[layer_type] = layer_config
 
-    return config_dict
 
-config_file_path = 'config.cfg'
-config_dict = parse_config_file(config_file_path)
-print(config_dict)
-"""
 class DynamicCNN(nn.Module):
-    @profile
     def __init__(self, config_dict, num_classes):
         super(DynamicCNN, self).__init__()
 
-        # Define the architecture
+        # Defined in the size initialization
         self.flatten_size = None
 
         self.layers, self.dropout = self.create_layers(config_dict)
@@ -35,6 +20,7 @@ class DynamicCNN(nn.Module):
         # Define the fully connected layers
         self.fc1 = nn.Linear(self.flattened_size, 256)
         self.fc2 = nn.Linear(256, num_classes)
+
 
     def forward(self, x):
         for layer in self.layers:
@@ -58,17 +44,15 @@ class DynamicCNN(nn.Module):
     def features(self, x):
         return self.layers(x)
 
-    # terrible function, would not recommend
 
-
-    @staticmethod
-    def create_layers(config):
+    def create_layers(self, config):
         layers = []
         dropout_layers = []
 
         for layer_config in config.values():
             layer_type = layer_config.get('type', 'unknown')
             if layer_type.startswith('convolutional_'):
+                print(layer_config['in_channels'])
                 layers.append(nn.Conv2d(
                     in_channels=int(layer_config['in_channels']),
                     out_channels=int(layer_config['out_channels']),
@@ -76,6 +60,7 @@ class DynamicCNN(nn.Module):
                     stride=int(layer_config['stride']),
                     padding=int(layer_config['pad'])
                 ))
+                print(layers)
                 layers.append(nn.BatchNorm2d(int(layer_config['out_channels'])))
 
             if layer_type.startswith('pool_'):
@@ -90,6 +75,5 @@ class DynamicCNN(nn.Module):
                 dropout_layers.append(nn.Dropout(dropout_prob))
 
         return nn.Sequential(*layers), nn.ModuleList(dropout_layers)
-
 
 
