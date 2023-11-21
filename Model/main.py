@@ -2,11 +2,14 @@ import argparse
 import torch
 from torchvision import transforms
 from Model_Config import Config, parse_config_file, config_file
+from model import BaseCNN
 from ConfigCNN import DynamicCNN
 from Train import Train
 from CustomLoader import DataSet
 from torch.utils.data import DataLoader
+from memory_profiler import profile
 
+@profile
 def main(args):
     config = Config()
     configuration = parse_config_file(config_file)
@@ -16,7 +19,6 @@ def main(args):
     dataset = DataSet(config.data_folder, config.label_csv, transform=transform)
     dataloader = DataLoader(dataset, batch_size=config.batch_size, shuffle=True, collate_fn=DataSet.collate_fn)
     model = DynamicCNN(configuration, 8)
-    # Create model
     # Create optimizer and criterion
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
     criterion = torch.nn.BCEWithLogitsLoss()
@@ -41,7 +43,6 @@ def main(args):
         pass
     else:
         print("no arguments given")
-        input("stop right there criminal scum")
         trainer.train_model(config.num_epochs)
 
 

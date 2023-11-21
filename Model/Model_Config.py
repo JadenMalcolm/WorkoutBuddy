@@ -27,6 +27,7 @@ class Config:
 
     @staticmethod
     def get_transforms():
+        print(transforms.Compose([transforms.ToTensor]))
         return transforms.Compose([transforms.ToTensor(),])
 
 

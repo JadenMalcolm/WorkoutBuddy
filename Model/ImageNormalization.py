@@ -44,7 +44,7 @@ def extract_frames(video_path, frame_output, video_index):
                     name = os.path.join(frame_output, f"video{video_index}_frame{current_frame}.jpg")
                     print(f"{video_index},{current_frame},video{video_index}_frame{current_frame}.jpg")
 
-                    csv_writer.writerow([video_index, current_frame, f"video{video_index}_frame{current_frame}.jpg"])
+                    csv_writer.writerow([f"video{video_index}", video_index, current_frame, f"video{video_index}_frame{current_frame}.jpg"])
 
                     cv2.imwrite(name, frame)
                     current_frame += 1
@@ -61,6 +61,8 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
         for filename in files:
             if filename.lower().endswith((".jpg", ".png", ".jpeg")):
                 image_path = os.path.join(root, filename)
+                video_id, frame_number = extract_video_frame_info(filename)  # Extract video identifier and frame number
+                output_dir = os.path.join(output_folder, f"video{video_id}")
                 image = cv2.imread(image_path, cv2.IMREAD_COLOR)
                 image = cv2.resize(image, target_size)
 
@@ -76,8 +78,6 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
                     image = image.astype(np.float64) / 255.0
 
                 # Create output directories if they don't exist
-                relative_path = os.path.relpath(root, input_folder)
-                output_dir = os.path.join(output_folder, relative_path)
                 os.makedirs(output_dir, exist_ok=True)
 
                 # Save the normalized image
@@ -85,6 +85,16 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
                 cv2.imwrite(output_path, (image * 255).astype(np.uint8))  # Save as 8-bit image
 
     print("Preprocessing completed.")
+
+
+def extract_video_frame_info(filename):
+    # Parse the filename to extract video identifier and frame number
+    # Assuming the filename format is 'video<video_id>_frame<frame_number>.jpg'
+    parts = filename.split('_')
+    video_id = int(parts[0].replace('video', ''))
+    frame_number = int(parts[1].replace('frame', '').split('.')[0])
+    return video_id, frame_number
+
 
 
 image_folder = 'Test_Images'

@@ -1,11 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import configparser
+from memory_profiler import profile
 config_file_path = 'CNN_config.cfg'
-
-
-
 
 class DynamicCNN(nn.Module):
     def __init__(self, config_dict, num_classes):
@@ -22,6 +19,7 @@ class DynamicCNN(nn.Module):
         self.fc2 = nn.Linear(256, num_classes)
 
 
+    @profile
     def forward(self, x):
         for layer in self.layers:
             x = layer(x)
