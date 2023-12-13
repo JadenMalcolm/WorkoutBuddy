@@ -33,7 +33,6 @@ for filename in os.listdir(directory):
         image_path = os.path.join('Test_Segmentation', image_name)
 
         original_image = cv2.imread(image_path)
-        original_image = cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB)
         image_height, image_width, _ = original_image.shape
 
         # Reshape the sequence into pairs of coordinates
