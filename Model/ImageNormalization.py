@@ -61,9 +61,11 @@ def preprocess_images(input_folder, output_folder, target_size=(224, 224)):
         for filename in files:
             if filename.lower().endswith((".jpg", ".png", ".jpeg")):
                 image_path = os.path.join(root, filename)
+                print(image_path)
                 video_id, frame_number = extract_video_frame_info(filename)  # Extract video identifier and frame number
                 output_dir = os.path.join(output_folder, f"video{video_id}")
                 image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+                print(image)
                 image = cv2.resize(image, target_size)
 
                 # Apply min-max normalization

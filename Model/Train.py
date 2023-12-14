@@ -13,12 +13,14 @@ class Train:
             running_loss = 0.0
             for i, data in enumerate(self.dataloader, 0):
                 inputs, labels = data
-                inputs, labels = inputs.to(self.device), labels.to(self.device)
+                print(inputs, labels)
+                inputs = inputs.to(self.device)
                 self.optimizer.zero_grad()
                 outputs = self.model(inputs)
-                loss = self.criterion(outputs, labels.float())
-                loss.backward()
-                self.optimizer.step()
-                running_loss += loss.item()
+                # loss = self.criterion(outputs, labels.float())
+                # loss.backward()
+                # self.optimizer.step()
+                # running_loss += loss.item()
             print(f'[{epoch + 1}] loss: {running_loss / len(self.dataloader):.4f}')
         print('Finished Training')
+

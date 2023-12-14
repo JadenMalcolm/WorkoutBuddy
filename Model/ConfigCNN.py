@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from memory_profiler import profile
 config_file_path = 'CNN_config.cfg'
 
+
 class DynamicCNN(nn.Module):
     def __init__(self, config_dict, num_classes):
         super(DynamicCNN, self).__init__()
@@ -18,8 +19,6 @@ class DynamicCNN(nn.Module):
         self.fc1 = nn.Linear(self.flattened_size, 256)
         self.fc2 = nn.Linear(256, num_classes)
 
-
-    @profile
     def forward(self, x):
         for layer in self.layers:
             x = layer(x)
@@ -33,6 +32,7 @@ class DynamicCNN(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return x
+
     def initialize_size(self):
         with torch.no_grad():
             dummy_input = torch.zeros(1, 3, 224, 224)
@@ -41,7 +41,6 @@ class DynamicCNN(nn.Module):
 
     def features(self, x):
         return self.layers(x)
-
 
     def create_layers(self, config):
         layers = []
@@ -73,5 +72,3 @@ class DynamicCNN(nn.Module):
                 dropout_layers.append(nn.Dropout(dropout_prob))
 
         return nn.Sequential(*layers), nn.ModuleList(dropout_layers)
-
-
