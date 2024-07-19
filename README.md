@@ -1,2 +1,1 @@
-Rip workoutbuddy#2
-Fun project but just don't have the computer for the model
+Fun project but don't have the compute power to train the model, even with transfer learning, may work on a more modestly sized model and a different approach
